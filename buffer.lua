@@ -1,46 +1,41 @@
-mgnm.buffer = mgnm.meta_self({
-	-- minp
-	-- size
-	contains = function(self,x,y,z)
-		local minp = self.minp
-		local size = self.size
-		if x > minp.x and x < minp.x + size.x
-		and y > minp.y and y < minp.y + size.y
-		and z > minp.z and z < minp.z + size.z then
-			return true
-		end
+local buffers = {}
+local lent_buffers = {}
 
+local function get_buffer(size)
+	local hash = minetest.hash_node_pos(size)
+	if not buffers[hash] then
+		buffers[hash] = {}
+	end
+	local buffers = buffers[hash]
+	if #buffers == 0 then
+		return {size=size}
+	end
+	local buffer = buffers[#buffers]
+	buffers[#buffers] = nil
+	lent_buffers[buffer] = buffer
+	return buffer
+end
+mgnm.get_buffer = get_buffer
+
+local function is_buffer(buffer)
+	if not buffer
+	or not lent_buffers[buffer] then
 		return false
-	end,
-	containsp = function(self,pos)
-		return self:contains(pos.x,pos.y,pos.z)
-	end,
+	end
+	return true
+end
+mgnm.is_buffer = is_buffer
 
-	index = function(self,x,y,z)
-		local minp = self.minp
-		local size = self.size
-		x = x - minp.x
-		y = (y - minp.y) * size.x
-		z = (z - minp.z) * size.x * size.y
+local function return_buffer(buffer)
+	if not is_buffer then
+		return
+	end
+	-- Avoid interfering with later uses
+	buffer.minp = nil
 
-		return x + y + z
-	end,
-	cindex = function(self,x,y,z)
-		if self.contains(x,y,z) then
-			return self:index(x,y,z)
-		else
-			return nil
-		end
-	end,
+	lent_buffers[buffer] = nil
+	local hash = minetest.hash_node_pos(buffer.size)
+	buffers[hash][#buffers[hash]+1] = buffer
+end
+mgnm.return_buffer = return_buffer
 
-	indexp = function(self,pos)
-		return self:i(pos.x,pos.y,pos.z)
-	end,
-	cindexp = function(self,pos)
-		if self:containsp(pos) then
-			return self:indexp(pos)
-		else
-			return nil
-		end
-	end,
-})

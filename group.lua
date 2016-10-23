@@ -1,8 +1,10 @@
 mgnm.groups = {}
 
 mgnm.noise_group = mgnm.meta_self({
+	--minp
+	minp = mgnm.invalid_pos,
 	init = function(self,minp)
-		if vector.equal(self.minp,minp) then
+		if not self:invalid(minp) then
 			return
 		end
 
@@ -10,8 +12,11 @@ mgnm.noise_group = mgnm.meta_self({
 			noise:init(minp)
 		end
 	end,
+	invalid = function(self,minp)
+		return not vector.equal(self.minp,minp)
+	end,
 	map = function(self,minp)
-		if vector.equal(self.minp,minp) then
+		if not self:invalid(minp) then
 			return
 		end
 
@@ -31,15 +36,12 @@ mgnm.group = function(group)
 		return mgnm.all[group]
 	end
 
-	local g = {}
+	local g = setmetatable({},mgnm.noise_group)
 	mgnm.all[group] = g
 	mgnm.groups[group] = g
 
 	for noise,def in pairs(group) do
-		g[noise] = mgnm.noise(def)
-		if not g[noise] then
-			g[noise] = mgnm.group(def)
-		end
+		g[noise] = mgnm.auto(def)
 	end
 
 	return g
