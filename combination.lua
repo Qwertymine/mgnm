@@ -33,7 +33,9 @@ mgnm.combination = mgnm.meta_self({
 setmetatable(mgnm.combination,mgnm.noise_area)
 
 mgnm.combine = function(self,def)
-	if not mgnm.is_vector(def.size) then
+	if not mgnm.is_vector(def.size)
+	or not def.combiner
+	or typeof(def.combiner) ~= "function" then
 		return nil
 	end
 
@@ -42,6 +44,7 @@ mgnm.combine = function(self,def)
 	end
 
 	local c = setmetatable({noises = {},size=def.size},mgnm.combination)
+	c.combiner = def.combiner
 	mgnm.all[def] = c
 	mgnm.combinations[def] = c
 
