@@ -10,7 +10,8 @@ end
 
 local function setup(self)
 	self.noise = assert(minetest.get_perlin_map(self.def,self.def.size))
-	if self.size.z then
+	if self.dims == 3
+	or self.size.z then
 		self.get_noise = get3dMap
 	else
 		self.get_noise = get2dMap

@@ -1,14 +1,23 @@
 local buffers = {}
 local lent_buffers = {}
 
-local function get_buffer(size)
-	local hash = minetest.hash_node_pos(size)
+local function hash_pos(size,dims)
+	local z = 0
+	if dims == 3
+	and pos.z then
+		z = pos.z
+	end
+	return (z + 32768)*65536*65536 + (pos.y + 32768)*65536 + (pos.x + 32768)
+end
+
+local function get_buffer(size,dims)
+	local hash = hash_pos(size,dims)
 	if not buffers[hash] then
 		buffers[hash] = {}
 	end
 	local buffers = buffers[hash]
 	if #buffers == 0 then
-		return {size=size}
+		return {size=size,dims=dims}
 	end
 	local buffer = buffers[#buffers]
 	buffers[#buffers] = nil
@@ -34,7 +43,7 @@ local function return_buffer(buffer)
 	buffer.minp = nil
 
 	lent_buffers[buffer] = nil
-	local hash = minetest.hash_node_pos(buffer.size)
+	local hash = hash_pos(buffer.size,buffer.dims)
 	buffers[hash][#buffers[hash]+1] = buffer
 end
 mgnm.return_buffer = return_buffer

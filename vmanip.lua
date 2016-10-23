@@ -1,7 +1,7 @@
 local vmanip_area = mgnm.meta_self({
 	-- data
 	get_data = function(self)
-		self.data = self.data or mgnm.get_buffer(self.size)
+		self.data = self.data or mgnm.get_buffer(self.size,self.dims)
 		self.vmanip:get_data(self.data)
 	end,
 	set_data = function(self)
@@ -11,7 +11,7 @@ local vmanip_area = mgnm.meta_self({
 	end,
 	-- light
 	get_light_data = function(self)
-		self.light = self.light or mgnm.get_buffer(self.size)
+		self.light = self.light or mgnm.get_buffer(self.size,self.dims)
 		self.vmanip:get_light_data(self.light)
 	end,
 	set_light_data = function(self)
@@ -21,7 +21,7 @@ local vmanip_area = mgnm.meta_self({
 	end,
 	-- p2data
 	get_param2_data = function(self)
-		self.p2data = self.p2data or mgnm.get_buffer(self.size)
+		self.p2data = self.p2data or mgnm.get_buffer(self.size,self.dims)
 		self.vmanip:get_param2_data(self.p2data)
 	end,
 	set_param2_data = function(self)
@@ -59,6 +59,7 @@ local mgvmanip = mgnm.meta_self({
 	-- emax
 	-- vmanip
 	size = mgnm.emerge_size,
+	dims = 3,
 	init = function(self)
 		local v, emin, emax = minetest.get_mapgen_object("voxelmanip")
 		self.vmanip = v
