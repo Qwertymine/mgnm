@@ -15,6 +15,9 @@ mgnm.meta_self = function(meta)
 	return meta
 end
 
+mgnm.empty_func = function()
+end
+
 local function is_vector(vec)
 	if not vec
 	or not typeof(vec) == "table"
