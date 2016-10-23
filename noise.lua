@@ -33,7 +33,7 @@ mgnm.noise_area = mgnm.meta_self({
 		end
 	end,
 	invalid = function(self,minp)
-		return not vector.equal(self.minp,minp)
+		return not vector.equals(self.minp,minp)
 	end,
 	-- Requires that init() has been called at least once
 	map = function(self,minp)
@@ -60,7 +60,7 @@ mgnm.noise = function(self,noise)
 		return nil
 	end
 
-	local n = setmetatable(n,mgnm.noise_area)
+	local n = setmetatable({},mgnm.noise_area)
 	n.size = noise.size
 	n.def = noise
 

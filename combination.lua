@@ -12,17 +12,19 @@ mgnm.combination = mgnm.meta_self({
 		if not self:invalid(minp) then
 			return
 		end
+		self.minp = minp
 
 		local noises = {}
 		for name,noise in pairs(self.noises) do
 			if noise:invalid(minp) then
 				noises[name] = setmetatable(
-					get_buffer(noise.size,noise.dims))
+					get_buffer(noise.size,noise.dims)
+					,noise)
 				noises[name]:init(minp)
 			end
 		end
 
-		self:combiner(minp,noises)
+		self:combiner(noises)
 
 		for _,table in pairs(noises) do
 			return_buffer(table)
@@ -37,7 +39,7 @@ setmetatable(mgnm.combination,mgnm.noise_area)
 mgnm.combine = function(self,def)
 	if not mgnm.is_vector(def.size)
 	or not def.combiner
-	or typeof(def.combiner) ~= "function" then
+	or type(def.combiner) ~= "function" then
 		return nil
 	end
 
@@ -53,7 +55,7 @@ mgnm.combine = function(self,def)
 	mgnm.combinations[def] = c
 
 	for noise,ndef in pairs(def) do
-		noises[noise] = mgnm:auto(ndef)
+		c.noises[noise] = mgnm.meta_self(mgnm:auto(ndef))
 	end
 
 	return c

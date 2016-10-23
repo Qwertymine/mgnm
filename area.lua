@@ -6,7 +6,7 @@ mgnm.area = mgnm.meta_self({
 		local size = self.size
 		if x > minp.x and x < minp.x + size.x
 		and y > minp.y and y < minp.y + size.y
-		and z > minp.z and z < minp.z + size.z then
+		and (self.dims == 2 or (z > minp.z and z < minp.z + size.z)) then
 			return true
 		end
 
@@ -19,9 +19,14 @@ mgnm.area = mgnm.meta_self({
 	index = function(self,x,y,z)
 		local minp = self.minp
 		local size = self.size
-		x = x - minp.x
+		x = (x - minp.x) + 1
 		y = (y - minp.y) * size.x
-		z = (z - minp.z) * size.x * size.y
+
+		if z and self.dims == 3 then
+			z = (z - minp.z) * size.x * size.y
+		else
+			z = 0
+		end
 
 		return x + y + z
 	end,

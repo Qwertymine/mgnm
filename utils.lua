@@ -11,6 +11,10 @@ mgnm.invalid_pos = {x=math.huge,y=math.huge,z=math.huge}
 -- [[  UTILITY FUNCTIONS  ]] --
 -- Used for setting up meta tables
 mgnm.meta_self = function(meta)
+	if not meta
+	or type(meta) ~= "table" then
+		return meta
+	end
 	meta.__index = meta
 	return meta
 end
@@ -20,18 +24,18 @@ end
 
 local function is_vector(vec)
 	if not vec
-	or not typeof(vec) == "table"
+	or not type(vec) == "table"
 	or not vec.x
 	or not vec.y then
 		return false
 	end
 
-	if typeof(vec.x) ~= "number"
-	or typeof(vec.y) ~= "number" then
+	if type(vec.x) ~= "number"
+	or type(vec.y) ~= "number" then
 		return false
 	end
 
-	if vec.z and typeof(vec.z) ~= "number" then
+	if vec.z and type(vec.z) ~= "number" then
 		return false
 	end
 
@@ -43,7 +47,7 @@ mgnm.is_vector = is_vector
 -- Automatic type detection
 mgnm.auto = function(self,def)
 	if not def
-	or typeof(def) ~= "table" 
+	or type(def) ~= "table" 
 	or is_vector(def) then
 		return nil
 	end
@@ -52,7 +56,7 @@ mgnm.auto = function(self,def)
 		return mgnm.all[def]
 	end
 
-	if def.combiner and typeof(def.combiner) == "function" then
+	if def.combiner and type(def.combiner) == "function" then
 		return mgnm:combine(def)
 	end
 

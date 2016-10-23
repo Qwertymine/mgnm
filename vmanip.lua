@@ -58,7 +58,7 @@ local mgvmanip = mgnm.meta_self({
 	-- emin
 	-- emax
 	-- vmanip
-	size = mgnm.emerge_size,
+	size = mgnm.emerged_size,
 	dims = 3,
 	init = function(self)
 		local v, emin, emax = minetest.get_mapgen_object("voxelmanip")

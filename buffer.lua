@@ -4,10 +4,10 @@ local lent_buffers = {}
 local function hash_pos(size,dims)
 	local z = 0
 	if dims == 3
-	and pos.z then
-		z = pos.z
+	and size.z then
+		z = size.z
 	end
-	return (z + 32768)*65536*65536 + (pos.y + 32768)*65536 + (pos.x + 32768)
+	return (z + 32768)*65536*65536 + (size.y + 32768)*65536 + (size.x + 32768)
 end
 
 local function get_buffer(size,dims)
@@ -36,7 +36,7 @@ end
 mgnm.is_buffer = is_buffer
 
 local function return_buffer(buffer)
-	if not is_buffer then
+	if not is_buffer(buffer) then
 		return
 	end
 	-- Avoid interfering with later uses
