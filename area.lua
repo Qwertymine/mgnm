@@ -20,11 +20,12 @@ mgnm.area = mgnm.meta_self({
 		local minp = self.minp
 		local size = self.size
 		x = (x - minp.x) + 1
-		y = (y - minp.y) * size.x
 
 		if z and self.dims == 3 then
+			y = (y - minp.y) * size.x
 			z = (z - minp.z) * size.x * size.y
 		else
+			y = (y - minp.z) * size.x
 			z = 0
 		end
 

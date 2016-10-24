@@ -1,7 +1,7 @@
 mgnm.noise_defs = {}
 
 local function get2dMap(self,minp)
-	return self.noise:get2dMap_flat(minp,self)
+	return self.noise:get2dMap_flat({x=minp.x,y=minp.z},self)
 end
 
 local function get3dMap(self,minp)
@@ -10,8 +10,7 @@ end
 
 local function setup(self)
 	self.noise = assert(minetest.get_perlin_map(self.def,self.def.size))
-	if self.dims == 3
-	or self.size.z then
+	if self.dims == 3 then
 		self.get_noise = get3dMap
 	else
 		self.get_noise = get2dMap
