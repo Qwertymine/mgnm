@@ -67,4 +67,3 @@ mgnm.noise = function(self,noise)
 	mgnm.noise_defs[noise] = n
 	return n
 end
-	
