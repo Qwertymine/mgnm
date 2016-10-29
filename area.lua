@@ -13,6 +13,9 @@ mgnm.area = mgnm.meta_self({
 		return false
 	end,
 	containsp = function(self,pos)
+		if dims == 2 and pos.z then
+			return self:contains(pos.x,pos.z)
+		end
 		return self:contains(pos.x,pos.y,pos.z)
 	end,
 
@@ -40,7 +43,10 @@ mgnm.area = mgnm.meta_self({
 	end,
 
 	indexp = function(self,pos)
-		return self:i(pos.x,pos.y,pos.z)
+		if dims == 2 and pos.z then
+			return self:index(pos.x,pos.z)
+		end
+		return self:index(pos.x,pos.y,pos.z)
 	end,
 	cindexp = function(self,pos)
 		if self:containsp(pos) then
