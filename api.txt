@@ -1,0 +1,343 @@
+//***********************************************************
+**	_Noise def API_
+//************************************************
+
+	Intelligent
+   ________________________
+
+mgnm:auto(noise_def:table)	-> mgnm_noise	-- Chooses appropriate noise based on simple intrinsics
+				?  mgnm_group	-- Uses standard registration functions internally
+				?  mgnm_combine
+
+	Standard types
+   ________________________
+
+mgnm:noise(noise_def:table)	-> mgnm_noise	-- Creates a simple minetest perlin noise generator
+
+mgnm:group(noise_def:table)	-> mgnm_group	-- Creates a table of noises which can be updated
+						-- together
+
+mgnm:combine(noise_def:table)	-> mgnm_combine	-- Creates a single noise composed of several nosies
+						-- User must provide combiner function
+
+//***********************************************************
+**	_Voxel Manip API_
+//************************************************
+
+	Mapgen vmanip
+   ________________________
+
+mgnm:mg_vmanip()		-> mgnm:mg_vmanip	-- Creates the mapgen voxel manipulator
+
+
+//***********************************************************
+**	_General Concepts_
+//************************************************
+
+	Naming
+   ________________________
+
+Names are left short wherever possible.
+
+A prefix c (e.g. area:cindex) indicates checking
+A suffix p (e.g. area:indexp) indicates the use of a pos (vec<x,y,z>) rather than seperate dims.
+
+	Pos / x,y,z args
+   ________________________
+
+x,y,z is used in 3d, and x,y in 2d when using args.
+
+vec<x,y,z> is used for both 2d and 3d when using Pos. In 2d, the value of z is mapped to y
+and the y value is ignored - e.g.:
+area:indexp(<x,y,z>) ->	area:index(x,z)
+
+Pos values can be modified after use by the api.
+
+
+	Noise identifiers
+   ________________________
+
+The table of a noise def turned into a noise through the API becomes the unique identifier
+of that noise - all following attempts to create noise using that def table will return the
+SAME noise object
+
+DO NOT modify the def table as a result, it will have no effect on future registrations
+
+This means also that a noise can be a member both a group and a combiner - however it is
+left to the user to ensure that the group group:init() is called before the combiner:init()
+to avoid the noise being calculated twice.
+
+	Data API members
+   ________________________
+
+If an object exposes a piece of data (e.g. area.size) this must NOT be modifed.
+
+Hiding these members would incur unnecessary overhead, and require the user to use
+getters, so they are exposed. Modify at your own risk.
+
+Buffers / flat arrays (anything you would access as self[i:num]) are sometimes intended
+for modification, sometimes not. Do not modify if any future values rely on it.
+
+
+//***********************************************************
+**	_Object types_
+//************************************************
+
+		*area -> noise
+		      -> *vmanip -> mgvmanip
+		      -> combine
+
+		group
+		buffer (not yet documented - currently internal API only)
+
+	*these are virtual (cannot be directly created) 
+
+	area
+   ________________________
+
+area.minp:vec<x,y,z>	-- Current minp of the area covered
+area.size:vec<x,y,z>	-- Size of the area
+area.dims:{2 3}		-- The number of dimensions covered by the area
+
+//	API (dims = 3)
+area:contains(x,y,z)		-> bool	-- Tests if the area contains the pos (x,y,z)
+area:containsp(pos:vec<x,y,z>)	-> bool	-- See above
+
+area:index(x,y,z)		-> num	-- Index of the pos (x,y,z) if stored in flat table
+                 		      	-- Nothing stored in area - derived classes only
+
+area:cindex(x,y,z)		-> num	-- Returns nil if pos is not contained
+				?  nil	-- otherwise see above
+
+area:indexp(pos:vec<x,y,z>)	-> num	-- See area:index
+area:cindexp(pos:vec<x,y,z>)	-> num	-- See area:cindex
+				?  nil	
+
+//	API (dims = 2)
+area:contains(x,y)		-> bool	-- Tests if the area contains the pos (x,y)
+area:containsp(pos:vec<x,y,z>)	-> bool	-- (z -> y) See above
+
+area:index(x,y)  		-> num	-- Index of the pos (x,y,z) if stored in flat table
+                 		      	-- Nothing stored in area - derived classes only
+
+area:cindex(x,y)  		-> num	-- Returns nil if pos is not contained
+				?  nil	-- otherwise see above
+
+area:indexp(pos:vec<x,y,z>)	-> num	-- (z -> y) See area:index
+area:cindexp(pos:vec<x,y,z>)	-> num	-- (z -> y) See area:cindex
+
+	noise
+   -------------------------
+
+noise[i:num]	-- Noise value at index
+            	-- Noise is stored as a flat array as in minetest.get_*_mapflat functions
+
+//	API (dims 2 or 3)
+noise:init()			-> void	-- Initialise noise if not done yet
+
+noise:init(minp:vec<x,y,z>)	-> void -- Initialise noise and map (See noise:map)
+
+noise:map(minp:vec<x,y,z>)	-> void	-- Writes noise values from minp to minp+area.size
+                          	       	-- as flat array into noise
+                          	       	-- Noise MUST be initialised before use
+                          	       	-- Use noise:init(minp) to do this automatically
+
+noise:invalid(minp:vec<x,y,z>)	-> bool -- A noise is invalid at minp if it does not start at minp
+
+noise:getp(pos:vec<x,y,z>)	-> noise[i]	-- Get the noise as pos
+
+//	API (dims = 3)
+noise:get(x,y,z)		-> noise[i]	-- Get the noise at pos (x,y,z)
+
+//	API (dims = 2)
+noise:get(x,y)			-> noise[i]	-- Get the noise as pos (x,y)
+
+
+	group
+   _________________________
+
+group["noise"][i:num]	-- See noise[i:num]
+group.noise[i:num]
+
+//	API
+group:init(minp:vec<x,y,z>)	-> void -- Init all noises for minp (See noise:init(minp))
+
+group:invalid(minp:vec<x,y,z>)	-> bool	-- A group is invalid at minp if it does not start at minp
+
+gorup:map(minp:vec<x,y,z>)	-> void -- Map all noises for minp (See noise:map(minp))
+                          	       	-- All noises MUST be intitialised before use
+                          	       	-- Use group:init(minp) to check automatically
+
+	combine
+   _________________________
+combine[i:num]	-- Noise value at index
+            	-- Noise is stored as a flat array as in minetest.get_*_mapflat functions
+
+combine:init(minp:vec<x,y,z>)	-> void -- Init all noises and map into buffers
+                  		       	-- Combined in user defined func (self.combiner)
+                  		       	-- Buffers released after combination
+
+combine:map(minp:vec<x,y,z>)	-> void -- Alias of combine:init(minp) for convinience
+					-- See above
+
+	vmanip
+   _________________________
+
+vmanip.vmanip:VoxelManip	-- The internally stored minetest VoxelManip
+
+vmanip.emin:vec<x,y,z>		-- The minimum point of the emerged area
+vmanip.emax:vec<x,y,z>		-- The maximum point of the emerged area
+
+//	API (data)
+vmanip.data[i:num]		-- Data values in flat array form
+
+vmanip:get_data()		-> void	-- Gets data (VoxelManip:get_data()) from map
+                 		->     	-- in buffer and stores in self.data
+
+vmanip:set_data()		-> void -- Sets data from self.data and releases buffer
+
+//	API (param2)
+vmanip.p2data[i:num]		-- Param2 data values in flat array form
+
+vmanip:get_param2_data()	-> void	-- Gets param2 data (VoxelManip:get_param2_data()) from map
+                 		->     	-- in buffer and stores in self.p2data
+
+vmanip:set_param2_data()	-> void -- Sets param2 data from self.p2data and releases buffer
+
+//	API (light)
+vmanip.light[i:num]		-- Lighting data values in flat array form
+
+vmanip:get_light_data()		-> void	-- Gets lighting data (VoxelManip:get_light_data()) from map
+                 		->     	-- in buffer and stores in self.light
+
+vmanip:set_light_data()		-> void -- Sets lighting data from self.light and releases buffer
+
+//	API (other)
+vmanip:update_liquids()		-> void -- Updates liquids (Makes them flow if possible)
+
+vmanip:write_to_map()		-> void -- Writes all changes back to map
+
+	mg_vmanip
+   -------------------------
+
+mg_vmanip:init()		-> void	-- Initialises the mg_vmanip for this mg call
+
+mg_vmanip:tini()		-> void -- Releases all held buffers
+                		       	-- Has no effect if all get* buffers are set*
+
+mg_vmanip
+:set_lighting(light, [p1,p2])	-> void -- Set lighting to uniform level
+                             	       	-- See VoxelManip:set_lighting (Minetest)
+
+mg_vmanip
+:calc_lighting([p1, p2], shadow)-> void -- Calcualte lighting in the voxelmanip
+                                       	-- See VoxelManip:calc_lighting (Minetest)
+
+mg_vmanip:get_emerged_area	-> (emin:vec<x,y,z>, emax:vec<x,y,z>)
+					-- Returns self.emin, self.emax
+
+//***********************************************************
+**	_Definitions_
+//************************************************
+
+	minetest perlin noise
+   -------------------------
+This is included to be expanded on in later defs
+(Not default values)
+{
+	offset = -16,
+	scale = 32,
+	seed = 0,
+	spread = {x=350,y=350,z=350},
+	octaves = 6,
+	persistance = 0.5,
+	lacunarity = 1.5,
+	flags = "absvalue",
+}
+
+	noise
+   -------------------------
+mgnm:auto{
+	-- Minetest perlin noise values
+
+	size = mgnm.mapchunk_size,
+	dims = 3,
+}
+
+	combiner
+   -------------------------
+mgnm:auto{
+	a = [mgnm noise or combiner def],
+	b = [mgnm noise or combiner def],
+	c = [mgnm group def],
+
+	combiner = function(self, noises)
+		local xyz = 1
+		local xz = 1
+		for z=1,self.size.z do
+		for y=1,self.size.y do
+		for x=1,self.size.x do
+
+			self[xyz] = noises.a[xyz] - noises.b[xz] + self.c.noise[xz]
+
+			xyz = xyz+1
+			xz = xz+1
+		end
+		xz = xz - size.x
+
+		end
+		end
+	end,
+	size = mgnm.mapchunk_size,
+	dims = 3,
+}
+
+	groups
+   -------------------------
+
+mgnm:auto{
+	a = [mgnm noise, group or combiner def],
+	b = [mgnm nois, group  or combiner def],
+}
+
+
+//***********************************************************
+**	_Utils_
+//************************************************
+
+	Standard Sizes
+   -------------------------
+
+mgnm.mapchunk_size:vec<x,y,z>		-- The 3d* size of a single mapchunk (typically 80^3)
+mgnm.emerged_size:vec<x,y,z>		-- The 3d* size of then area emerged by the mapgen voxelmanip
+                        		   (mapchunk_size + 32)
+* Both can be used with 2d noises too
+
+	Util functions
+   _________________________
+
+mgnm.meta_self(meta:table)	-> meta		-- sets the __index of the input table to itself
+mgnm.is_vector(test:table)	-> bool		-- check if the input table is a 2d or 3d vector
+
+mgnm.empty_func()		-> void		-- does nothing
+
+//***********************************************************
+**	_Rationalle_
+//************************************************
+
+	Deisgn Goals
+   _________________________
+
+1. Productivity 	- Power and ease of use
+2. Space efficiency	- Reduce the number of GC collections and number of tables in mem
+3. Time efficiency	- 'performance'
+
+This can be most easily seen with the combiners API - easy to make custom base noises,
+memory automatically managed with buffers, but the overhead of writing to the combiner table.
+
+	Future
+   _________________________
+1. Add support for other types of basic noise
+2. Add normal vmanip support
+?. Expose buffers?
+
