@@ -16,6 +16,7 @@ mgnm.combination = mgnm.meta_self({
 
 		local noises = {}
 		for name,noise in pairs(self.noises) do
+			noises[name] = noise
 			if noise:invalid(minp) then
 				noises[name]:init()
 				noises[name] = setmetatable(

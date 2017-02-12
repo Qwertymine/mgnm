@@ -18,7 +18,9 @@ local function setup(self)
 end
 
 mgnm.noise_area = mgnm.meta_self({
-	-- inherits size
+	--[[ inherits --]] 
+	-- size
+	-- dims
 	-- noise
 	-- minp
 	minp = mgnm.invalid_pos,
@@ -62,6 +64,7 @@ mgnm.noise = function(self,noise)
 	local n = setmetatable({},mgnm.noise_area)
 	n.size = noise.size
 	n.def = noise
+	n.dims = noise.dims
 
 	mgnm.all[noise] = n
 	mgnm.noise_defs[noise] = n
