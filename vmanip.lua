@@ -1,4 +1,14 @@
 local vmanip_area = mgnm.meta_self({
+	--[[ Inherits --]]
+	-- minp
+	-- size
+	-- dims = 3
+	dims = 3,
+
+	-- vmanip
+	-- emin
+	-- emax
+
 	-- data
 	get_data = function(self)
 		self.data = self.data or mgnm.get_buffer(self.size,self.dims)

@@ -1,6 +1,7 @@
 mgnm.area = mgnm.meta_self({
 	-- minp
 	-- size
+	-- dims
 	contains = function(self,x,y,z)
 		local minp = self.minp
 		local size = self.size
