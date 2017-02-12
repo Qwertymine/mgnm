@@ -10,7 +10,7 @@ local function hash_pos(size,dims)
 	return (z + 32768)*65536*65536 + (size.y + 32768)*65536 + (size.x + 32768)
 end
 
-local function get_buffer(size,dims)
+mgnm.get_buffer = function(size,dims)
 	local hash = hash_pos(size,dims)
 	if not buffers[hash] then
 		buffers[hash] = {}
@@ -24,18 +24,17 @@ local function get_buffer(size,dims)
 	lent_buffers[buffer] = buffer
 	return buffer
 end
-mgnm.get_buffer = get_buffer
 
-local function is_buffer(buffer)
+mgnm.is_buffer = function(buffer)
 	if not buffer
 	or not lent_buffers[buffer] then
 		return false
 	end
 	return true
 end
-mgnm.is_buffer = is_buffer
 
-local function return_buffer(buffer)
+local is_buffer = mgnm.is_buffer
+mgnm.return_buffer = function(buffer)
 	if not is_buffer(buffer) then
 		return
 	end
@@ -46,5 +45,4 @@ local function return_buffer(buffer)
 	local hash = hash_pos(buffer.size,buffer.dims)
 	buffers[hash][#buffers[hash]+1] = buffer
 end
-mgnm.return_buffer = return_buffer
 

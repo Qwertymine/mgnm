@@ -22,7 +22,7 @@ end
 mgnm.empty_func = function()
 end
 
-local function is_vector(vec)
+mgnm.is_vector = function(vec)
 	if not vec
 	or not type(vec) == "table"
 	or not vec.x
@@ -41,7 +41,7 @@ local function is_vector(vec)
 
 	return true
 end
-mgnm.is_vector = is_vector
+local is_vector = mgnm.is_vector
 
 -- [[  SIMPLIFIED CREATION FUNCTION  ]] --
 -- Automatic type detection
