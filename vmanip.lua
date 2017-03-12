@@ -11,32 +11,32 @@ local vmanip_area = mgnm.meta_self({
 
 	-- data
 	get_data = function(self)
-		self.data = self.data or mgnm.get_buffer(self.size,self.dims)
+		self.data = self.data or mgbm.get_u_buffer(self.size,self.dims)
 		self.vmanip:get_data(self.data)
 	end,
 	set_data = function(self)
 		self.vmanip:set_data(self.data)
-		mgnm.return_buffer(self.data)
+		mgbm.return_buffer(self.data)
 		self.data = nil
 	end,
 	-- light
 	get_light_data = function(self)
-		self.light = self.light or mgnm.get_buffer(self.size,self.dims)
+		self.light = self.light or mgbm.get_u_buffer(self.size,self.dims)
 		self.vmanip:get_light_data(self.light)
 	end,
 	set_light_data = function(self)
 		self.vmanip:set_light_data(self.light)
-		mgnm.return_buffer(self.light)
+		mgbm.return_buffer(self.light)
 		self.light = nil
 	end,
 	-- p2data
 	get_param2_data = function(self)
-		self.p2data = self.p2data or mgnm.get_buffer(self.size,self.dims)
+		self.p2data = self.p2data or mgbm.get_u_buffer(self.size,self.dims)
 		self.vmanip:get_param2_data(self.p2data)
 	end,
 	set_param2_data = function(self)
 		self.vmanip:set_param2_data(self.p2data)
-		mgnm.return_buffer(self.p2data)
+		mgbm.return_buffer(self.p2data)
 		self.p2data = nil
 	end,
 	update_liquids = function(self)
@@ -82,7 +82,7 @@ local mgvmanip = mgnm.meta_self({
 	tini = function(self)
 		self.vmanip = nil
 		for k,v in pairs(self) do
-			mgnm.return_buffer(v)
+			mgbm.return_buffer(v)
 			self[v] = nil
 		end
 	end,

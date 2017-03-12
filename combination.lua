@@ -1,7 +1,7 @@
 mgnm.combinations = {}
 
-local get_buffer = mgnm.get_buffer
-local return_buffer = mgnm.return_buffer
+local get_buffer = mgbm.get_u_buffer
+local return_buffer = mgbm.return_buffer
 
 mgnm.combination = mgnm.meta_self({
 	-- noises
@@ -18,9 +18,9 @@ mgnm.combination = mgnm.meta_self({
 		for name,noise in pairs(self.noises) do
 			if noise:invalid(minp) then
 				noise:init()
-				noises[name] = setmetatable(
-					get_buffer(noise.size,noise.dims)
-					,noise)
+				local buffer = get_buffer(noise.size, noise.dims)
+				buffer.minp = nil
+				noises[name] = setmetatable(buffer ,noise)
 				noises[name]:map(minp)
 			end
 		end
