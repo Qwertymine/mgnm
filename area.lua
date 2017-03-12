@@ -1,4 +1,4 @@
-mgnm.area = mgnm.meta_self({
+mgnm.m_area = mgnm.meta_self{
 	-- minp
 	-- size
 	-- dims
@@ -56,4 +56,20 @@ mgnm.area = mgnm.meta_self({
 			return nil
 		end
 	end,
-})
+}
+
+mgnm.area = function(def, self)
+	assert(def and type(def) == "table", "Area definition is not a table")
+
+	self = self or setmetatable({}, mgnm.m_area)
+
+	assert(def.size and mgnm.is_vector(def.size)
+	     , "Area definition requires size vector")
+
+	self.size = def.size
+
+	assert(def.dims and (def.dims == 2 or def.dims == 3)
+	     , "Area definition requires dimensions number {2, 3}")
+
+	self.dims = def.dims
+end

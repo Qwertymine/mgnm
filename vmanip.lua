@@ -46,7 +46,7 @@ local vmanip_area = mgnm.meta_self({
 		self.vmanip:write_to_map()
 	end,
 })
-setmetatable(vmanip_area,mgnm.area)
+setmetatable(vmanip_area,mgnm.m_area)
 mgnm.vmanip_area = vmanip_area
 
 --[[

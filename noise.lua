@@ -50,7 +50,7 @@ mgnm.noise_area = mgnm.meta_self({
 		return self[self:indexp(pos)]
 	end,
 })
-setmetatable(mgnm.noise_area,mgnm.area)
+setmetatable(mgnm.noise_area,mgnm.m_area)
 
 mgnm.noise = function(self,noise)
 	if mgnm.all[noise_def] then
