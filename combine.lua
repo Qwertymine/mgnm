@@ -1,8 +1,3 @@
-mgnm.combinations = {}
-
-local get_buffer = mgbm.get_mg_buffer
-local return_buffer = mgbm.return_buffer
-
 mgnm.m_combine = mgnm.meta_self{
 	-- noises
 	-- size
