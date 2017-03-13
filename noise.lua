@@ -1,72 +1,42 @@
-mgnm.noise_defs = {}
-
-local function get2dMap(self,minp)
-	return self.noise:get2dMap_flat({x=minp.x,y=minp.z},self)
-end
-
-local function get3dMap(self,minp)
-	return self.noise:get3dMap_flat(minp,self)
-end
-
-local function setup(self)
-	self.noise = assert(minetest.get_perlin_map(self.def,self.def.size))
-	if self.dims == 3 then
-		self.get_noise = get3dMap
-	else
-		self.get_noise = get2dMap
-	end
-end
-
-mgnm.noise_area = mgnm.meta_self({
+mgnm.m_noise = mgnm.meta_self{
 	--[[ inherits --]] 
 	-- size
 	-- dims
-	-- noise
 	-- minp
-	minp = mgnm.invalid_pos,
-	-- def
+	--data
+	setup = mgnm.empty_func,
 	init = function(self,minp)
 		if not self.noise then
-			setup(self)
+			self:setup()
 		end
-		if minp then
-			return self:map(minp)
+
+		if not minp then
+			return
 		end
-	end,
-	invalid = function(self,minp)
-		return not vector.equals(self.minp,minp)
-	end,
-	-- Requires that init() has been called at least once
-	map = function(self,minp)
+
 		if self:invalid(minp) then
 			self.minp = table.copy(minp)
-			self:get_noise(minp)
+			self.data = mgbm.get_mg_buffer(self.size, self.dims)
+			self.data = self:get_noise(minp, self.data)
 		end
+
+		return self.data
+
 	end,
-	get = function(self,x,y,z)
-		return self[self:index(x,y,z)]
+	tini = function(self, minp)
+		if self:invalid(minp) then
+			return
+		end
+
+		mgbm.return_buffer(self.data)
 	end,
-	getp = function(self,pos)
-		return self[self:indexp(pos)]
-	end,
-})
-setmetatable(mgnm.noise_area,mgnm.m_area)
+}
+setmetatable(mgnm.m_noise,mgnm.m_area)
 
-mgnm.noise = function(self,noise)
-	if mgnm.all[noise_def] then
-		return mgnm.all[noise_def]
-	end
+mgnm.noise = function(def, self)
+	self = self or setmetatable({},mgnm.m_noise)
 
-	if not mgnm.is_vector(noise.size) then
-		return nil
-	end
+	mgnm.area(def, self)
 
-	local n = setmetatable({},mgnm.noise_area)
-	n.size = noise.size
-	n.def = noise
-	n.dims = noise.dims
-
-	mgnm.all[noise] = n
-	mgnm.noise_defs[noise] = n
-	return n
+	return self
 end

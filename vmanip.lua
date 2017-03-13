@@ -11,7 +11,7 @@ local vmanip_area = mgnm.meta_self({
 
 	-- data
 	get_data = function(self)
-		self.data = self.data or mgbm.get_u_buffer(self.size,self.dims)
+		self.data = self.data or mgbm.get_mg_buffer(self.size,self.dims)
 		self.vmanip:get_data(self.data)
 	end,
 	set_data = function(self)
@@ -21,7 +21,7 @@ local vmanip_area = mgnm.meta_self({
 	end,
 	-- light
 	get_light_data = function(self)
-		self.light = self.light or mgbm.get_u_buffer(self.size,self.dims)
+		self.light = self.light or mgbm.get_mg_buffer(self.size,self.dims)
 		self.vmanip:get_light_data(self.light)
 	end,
 	set_light_data = function(self)
@@ -31,7 +31,7 @@ local vmanip_area = mgnm.meta_self({
 	end,
 	-- p2data
 	get_param2_data = function(self)
-		self.p2data = self.p2data or mgbm.get_u_buffer(self.size,self.dims)
+		self.p2data = self.p2data or mgbm.get_mg_buffer(self.size,self.dims)
 		self.vmanip:get_param2_data(self.p2data)
 	end,
 	set_param2_data = function(self)
@@ -81,6 +81,7 @@ local mgvmanip = mgnm.meta_self({
 	end,
 	tini = function(self)
 		self.vmanip = nil
+
 		for k,v in pairs(self) do
 			mgbm.return_buffer(v)
 			self[v] = nil
@@ -99,6 +100,6 @@ local mgvmanip = mgnm.meta_self({
 setmetatable(mgvmanip,vmanip_area)
 mgnm.mg_vmanip_area = mgvmanip
 
-mgnm.mg_vmanip = function(self)
+mgnm.mg_vmanip = function()
 	return setmetatable({},mgvmanip)
 end

@@ -23,46 +23,15 @@ mgnm.empty_func = function()
 end
 
 mgnm.is_vector = function(vec)
-	if not vec
-	or not type(vec) == "table"
-	or not vec.x
-	or not vec.y then
-		return false
-	end
-
-	if type(vec.x) ~= "number"
-	or type(vec.y) ~= "number" then
-		return false
-	end
-
-	if vec.z and type(vec.z) ~= "number" then
-		return false
-	end
-
-	return true
-end
-local is_vector = mgnm.is_vector
-
--- [[  SIMPLIFIED CREATION FUNCTION  ]] --
--- Automatic type detection
-mgnm.auto = function(self,def)
-	if not def
-	or type(def) ~= "table" 
-	or is_vector(def) then
+	if not type(vec) == "table"
+	or not type(vec.x) == "number"
+	or not type(vec.z) == "number" then
 		return nil
 	end
 
-	if mgnm.all[def] then
-		return mgnm.all[def]
+	if type(vec.y) == "number" then
+		return 3		-- It is a 3d vector
+	else
+		return 2
 	end
-
-	if def.combiner and type(def.combiner) == "function" then
-		return mgnm:combine(def)
-	end
-
-	if def.size and is_vector(def.size) then
-		return mgnm:noise(def)
-	end
-
-	return mgnm:group(def)
 end
